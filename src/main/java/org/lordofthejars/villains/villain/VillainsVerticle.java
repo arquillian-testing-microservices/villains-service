@@ -12,15 +12,20 @@ import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.buffer.Buffer;
 import io.vertx.rxjava.core.http.HttpServerResponse;
 import io.vertx.rxjava.ext.jdbc.JDBCClient;
+import io.vertx.rxjava.ext.sql.SQLRowStream;
 import io.vertx.rxjava.ext.web.Router;
 import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.client.HttpResponse;
 import io.vertx.rxjava.ext.web.client.WebClient;
 import io.vertx.rxjava.ext.web.handler.BodyHandler;
+import rx.Single;
 
 public class VillainsVerticle extends AbstractVerticle {
 
+    private static final JsonArray SENTINEL = Villain.sentinel();
+
     private JDBCClient jdbcClient;
+    private WebClient client;
 
     public static void main(String args[]) {
         Vertx vertx = Vertx.vertx();
@@ -51,6 +56,8 @@ public class VillainsVerticle extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> fut) {
+
+        client = WebClient.create(vertx);
 
         jdbcClient = JDBCClient.createShared(vertx, new JsonObject()
             .put("url", "jdbc:h2:mem:villains;DB_CLOSE_DELAY=-1")
@@ -90,33 +97,43 @@ public class VillainsVerticle extends AbstractVerticle {
         if (villainName == null) {
             sendError(400, response);
         } else {
+            // Step 1 retrieve villain
             jdbcClient.rxGetConnection()
                 .flatMap(connection ->
-                    connection.rxQueryWithParams("SELECT id, name, areaOfInfluence FROM villain WHERE name=?",
-                        new JsonArray().add(villainName))
-                        .map(resultSet -> resultSet.getRows().stream().map(Villain::new).findFirst())
-                        .doAfterTerminate(connection::close))
-                .subscribe(villainOptional -> {
-                    if(villainOptional.isPresent()) {
-                        final WebClient client = WebClient.create(vertx); // Can this be created once and reused so can be set as class field?
-                        client
-                            .get(config().getInteger("services.crimes.port"), config().getString("services.crimes.host"),
-                                "/crimes/" + villainName)
-                            .send(ar ->{
-                                if (ar.succeeded()) {
-                                    HttpResponse<Buffer> crimesResponse = ar.result();
-                                    final JsonArray crimes = crimesResponse.bodyAsJsonArray();
-                                    final Villain villain = villainOptional.get();
-                                    villain.addCrimes(crimes);
-                                    response.putHeader("content-type", "application/json").end(Json.encodePrettily(villain));
-                                } else {
-                                    sendError(500, ar.cause().getMessage(),response);
-                                }
-                            });
-                    } else {
-                        sendError(404, response);
+                    connection.rxQueryStreamWithParams("SELECT id, name, areaOfInfluence FROM villain WHERE name=?",
+                        new JsonArray().add(villainName)
+                    )
+                        .flatMapObservable((SQLRowStream::toObservable))
+                        .firstOrDefault(SENTINEL)
+                        .map(Villain::new)
+                        .toSingle()
+                        .doAfterTerminate(connection::close)
+                )
+                // Step 2 retrieve crimes
+                .flatMap(villain -> {
+                        if (villain.isSentinel()) {
+                            return Single.just(villain);
+                        }
+
+                        return client.get(config().getInteger("services.crimes.port"),
+                            config().getString("services.crimes.host"),
+                            "/crimes/" + villainName)
+                            .rxSend()
+                            .map(HttpResponse::bodyAsJsonArray)
+                            .map(villain::addCrimes);
                     }
-                });
+                )
+
+                // Send result
+                .subscribe(villain -> {
+                        if (villain.isSentinel()) {
+                            sendError(404, response);
+                        } else {
+                            response.putHeader("content-type", "application/json").end(Json.encode(villain));
+                        }
+                    },
+                    routingContext::fail
+                );
         }
     }
 

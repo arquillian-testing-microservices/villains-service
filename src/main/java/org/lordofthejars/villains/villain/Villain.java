@@ -8,21 +8,27 @@ import java.util.stream.Collectors;
 
 public class Villain {
 
+    private static final JsonArray SENTINEL = new JsonArray();
+
     private String name;
     private String areaOfInfluence;
 
     private List<Crime> crimes = new ArrayList<>();
 
-    public Villain(JsonObject jsonObject) {
-        this.name = jsonObject.getString("NAME");
-        this.areaOfInfluence = jsonObject.getString("AREAOFINFLUENCE");
+    public Villain(JsonArray jsonArray) {
+        if (!SENTINEL.equals(jsonArray)) {
+            this.name = jsonArray.getString(1);
+            this.areaOfInfluence = jsonArray.getString(2);
+        }
     }
 
-    public void addCrimes(JsonArray crimes) {
+    public Villain addCrimes(JsonArray crimes) {
         this.crimes.addAll(crimes.stream()
             .map(crime -> (JsonObject) crime)
             .map(Crime::new)
         .collect(Collectors.toList()));
+
+        return this;
     }
 
     public String getName() {
@@ -35,6 +41,14 @@ public class Villain {
 
     public List<Crime> getCrimes() {
         return crimes;
+    }
+
+    public static JsonArray sentinel() {
+        return SENTINEL;
+    }
+
+    boolean isSentinel() {
+        return this.name == null;
     }
 
     @Override
