@@ -14,30 +14,30 @@ import static io.restassured.RestAssured.given;
 import static io.specto.hoverfly.junit.core.SimulationSource.dsl;
 import static io.specto.hoverfly.junit.dsl.HoverflyDsl.service;
 import static io.specto.hoverfly.junit.dsl.ResponseCreators.success;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 
 public class VillainsVerticleTest {
 
     private static Vertx vertx;
 
-    private static String RESPONSE = "{\n"
-        + "  \"name\": \"Gru\",\n"
-        + "  \"areaOfInfluence\": \"Worldwide\",\n"
-        + "  \"crimes\": [\n"
+    private static String RESPONSE = "[\n"
         + "    {\n"
-        + "      \"name\": \"Moon\",\n"
-        + "      \"wikipedia\": \"https://en.wikipedia.org/wiki/Moon\"\n"
+        + "        \"name\": \"Moon\",\n"
+        + "        \"villain\": \"Gru\",\n"
+        + "        \"wiki\": \"https://en.wikipedia.org/wiki/Moon\"\n"
         + "    },\n"
         + "    {\n"
-        + "      \"name\": \"Times Square JumboTron\",\n"
-        + "      \"wikipedia\": \"https://en.wikipedia.org/wiki/One_Times_Square\"\n"
+        + "        \"name\": \"Times Square JumboTron\",\n"
+        + "        \"villain\": \"Gru\",\n"
+        + "        \"wiki\": \"https://en.wikipedia.org/wiki/One_Times_Square\"\n"
         + "    }\n"
-        + "  ]\n"
-        + "}";
+        + "]";
 
 
     @ClassRule
     public static HoverflyRule hoverflyRule = HoverflyRule.inSimulationMode(dsl(
-        service("crimes")
+        service("crimes:9090")
             .get("/crimes/Gru")
             .willReturn(success(RESPONSE, "application/json"))
     ));
@@ -65,13 +65,15 @@ public class VillainsVerticleTest {
 
     @Test
     public void should_get_villain_information() {
-        System.out.println(given()
+       given()
             .when()
             .get("villains/{villain}", "Gru")
             .then()
-            .extract()
-            .body()
-            .as(String.class));
+            .assertThat()
+            .body("name", is("Gru"))
+            .body("areaOfInfluence", is("Worldwide"))
+            .body("crimes.name", hasItems("Moon", "Times Square JumboTron"));
+
     }
 
 }

@@ -7,6 +7,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.ProxyOptions;
+import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.rx.java.RxHelper;
 import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.buffer.Buffer;
@@ -18,6 +20,7 @@ import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.client.HttpResponse;
 import io.vertx.rxjava.ext.web.client.WebClient;
 import io.vertx.rxjava.ext.web.handler.BodyHandler;
+import java.util.Optional;
 import rx.Single;
 
 public class VillainsVerticle extends AbstractVerticle {
@@ -57,7 +60,14 @@ public class VillainsVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> fut) {
 
-        client = WebClient.create(vertx);
+        final Optional<ProxyOptions> proxyOptions = useSystemPropertiesProxyOptions();
+        if (proxyOptions.isPresent()) {
+            final WebClientOptions webClientOptions = new WebClientOptions();
+            webClientOptions.setProxyOptions(proxyOptions.get());
+            client = WebClient.create(vertx, webClientOptions);
+        } else {
+            client = WebClient.create(vertx);
+        }
 
         jdbcClient = JDBCClient.createShared(vertx, new JsonObject()
             .put("url", "jdbc:h2:mem:villains;DB_CLOSE_DELAY=-1")
@@ -88,6 +98,24 @@ public class VillainsVerticle extends AbstractVerticle {
             })
             .toCompletable()
             .subscribe(RxHelper.toSubscriber(fut));
+    }
+
+    private Optional<ProxyOptions> useSystemPropertiesProxyOptions() {
+        final String httpsProxy = System.getProperty("https.proxyHost");
+        if (httpsProxy != null) {
+            return Optional.of(new ProxyOptions()
+                .setHost(httpsProxy)
+                .setPort(Integer.parseInt(System.getProperty("https.proxyPort", "443"))));
+        } else {
+            final String httpProxy = System.getProperty("http.proxyHost");
+            if (httpProxy != null) {
+                return Optional.of(new ProxyOptions()
+                    .setHost(httpsProxy)
+                    .setPort(Integer.parseInt(System.getProperty("http.proxyPort", "80"))));
+            }
+        }
+
+        return Optional.empty();
     }
 
     private void handleGetVillains(RoutingContext routingContext) {
