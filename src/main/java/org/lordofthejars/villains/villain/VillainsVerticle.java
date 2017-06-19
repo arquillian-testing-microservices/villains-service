@@ -84,7 +84,8 @@ public class VillainsVerticle extends AbstractVerticle {
                 .flatMap(v ->
                     connection.rxExecute("insert into villain values(1, 'Gru', 'Worldwide'), "
                         + "(2, 'Lex Luthor', 'Metropolis'), "
-                        + "(3, 'Jack Sparrow', 'Caribbean')"
+                        + "(3, 'Jack Sparrow', 'Caribbean'), "
+                        + "(4, 'Gargamel', 'Forest')"
                     )
                 )
                 .doAfterTerminate(connection::close))
