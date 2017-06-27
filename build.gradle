@@ -63,7 +63,8 @@ task exec(type:JavaExec) {
 
 task createBuildInfoFile {
     doLast {
-        def buildInfoFile = new File("$buildDir/classes/main/build-info.json")
+        def buildInfoFile = new File("$buildDir/classes/java/main/build-info.json")
+        buildInfoFile.createNewFile()
         def version = project.getVersion()
         buildInfoFile.text = """
 {
