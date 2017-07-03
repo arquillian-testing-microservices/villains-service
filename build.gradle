@@ -105,9 +105,6 @@ task buildImage(type: DockerBuildImage) {
     tag = "${rootProject.name}:${project.version}"
 }
 
-task listFiles(type: Exec) {
-    commandLine 'ls'
-}
 
 
 
