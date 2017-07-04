@@ -37,8 +37,8 @@ dependencies {
     compile "io.vertx:vertx-web:${project.ext.vertxVersion}"
     compile "io.vertx:vertx-rx-java:${project.ext.vertxVersion}"
     compile "io.vertx:vertx-jdbc-client:${project.ext.vertxVersion}"
-    compile 'io.vertx:vertx-web-client:${project.ext.vertxVersion}'
-    testCompile "io.vertx:vertx-unit:${project.ext.vertxVersion}1"
+    compile "io.vertx:vertx-web-client:${project.ext.vertxVersion}"
+    testCompile "io.vertx:vertx-unit:${project.ext.vertxVersion}"
     compile "com.h2database:h2:1.4.194"
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile 'io.rest-assured:rest-assured:3.0.3'
@@ -105,6 +105,40 @@ task buildImage(type: DockerBuildImage) {
     tag = "${rootProject.name}:${project.version}"
 }
 
+task deployNewVersion(type: Exec) {
+    dependsOn buildImage
+
+    commandLine "./patchVersion.sh", "${project.version}"
+
+    standardOutput = new ByteArrayOutputStream()
+
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+
+task printInfo(type: Exec) {
+    commandLine "oc", "describe", "dc", "villains"
+
+    standardOutput = new ByteArrayOutputStream()
+
+    doLast {
+        println standardOutput
+    }
+}
+
+deployNewVersion.finalizedBy printInfo
+
+task rollbackToDeployment(type: Exec) {
+
+    commandLine "oc rollback ${rootProject.name}-${project.findProperty('deployment')}"
+
+    standardOutput = new ByteArrayOutputStream()
+
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
 
 
 
