@@ -29,6 +29,7 @@ public class VillainsVerticle extends AbstractVerticle {
 
     private JDBCClient jdbcClient;
     private WebClient client;
+    private CrimesGateway crimesGateway;
 
     public static void main(String args[]) {
         Vertx vertx = Vertx.vertx();
@@ -68,6 +69,10 @@ public class VillainsVerticle extends AbstractVerticle {
         } else {
             client = WebClient.create(vertx);
         }
+
+        this.crimesGateway = new CrimesGateway(client,
+            config().getString("services.crimes.host"),
+            config().getInteger("services.crimes.port"));
 
         jdbcClient = JDBCClient.createShared(vertx, new JsonObject()
             .put("url", "jdbc:h2:mem:villains;DB_CLOSE_DELAY=-1")
@@ -143,12 +148,7 @@ public class VillainsVerticle extends AbstractVerticle {
                         if (villain.isSentinel()) {
                             return Single.just(villain);
                         }
-
-                        return client.get(config().getInteger("services.crimes.port"),
-                            config().getString("services.crimes.host"),
-                            "/crimes/" + villainName)
-                            .rxSend()
-                            .map(HttpResponse::bodyAsJsonArray)
+                        return crimesGateway.getCrimesByVillainName(villainName)
                             .map(villain::addCrimes);
                     }
                 )
