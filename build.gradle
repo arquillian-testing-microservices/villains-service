@@ -29,7 +29,7 @@ repositories {
 }
 
 project.ext {
-    vertxVersion = '3.4.1'
+    vertxVersion = '3.4.2'
 }
 
 dependencies {
