@@ -12,6 +12,7 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id "io.spring.dependency-management" version '1.0.3.RELEASE'
 }
 
 group 'org.lordofthejars.villains'
@@ -30,6 +31,14 @@ repositories {
 
 project.ext {
     vertxVersion = '3.4.2'
+    pactVersion = '3.5.1'
+    algeronVersion = '2.0.0-rc.1'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.jboss.arquillian:arquillian-bom:1.1.13.Final'
+    }
 }
 
 dependencies {
@@ -42,7 +51,12 @@ dependencies {
     compile "com.h2database:h2:1.4.194"
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile 'io.rest-assured:rest-assured:3.0.3'
+    testCompile 'org.assertj:assertj-core:3.8.0'
     testCompile "io.specto:hoverfly-java:0.6.1"
+    testCompile 'org.jboss.arquillian.junit:arquillian-junit-standalone'
+    testCompile "org.arquillian.algeron:arquillian-algeron-pact-consumer-core:${project.ext.algeronVersion}"
+    testCompile "au.com.dius:pact-jvm-consumer_2.11:${project.ext.pactVersion}"
+
 }
 
 def runner = 'org.lordofthejars.villains.villain.VillainsVerticle'
