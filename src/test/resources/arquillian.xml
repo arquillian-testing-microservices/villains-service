@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://jboss.org/schema/arquillian"
+    xsi:schemaLocation="http://jboss.org/schema/arquillian
+    http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+  <extension qualifier="algeron-consumer">
+    <property name="publishContracts">${env.publishcontracts:true}</property>
+    <property name="publishConfiguration">
+      provider: folder
+      outputFolder: /tmp/crimescontract
+      contractsFolder: build/pacts
+    </property>
+  </extension>
+
+</arquillian>
