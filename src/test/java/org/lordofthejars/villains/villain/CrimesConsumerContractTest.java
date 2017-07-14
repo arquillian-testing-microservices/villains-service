@@ -4,6 +4,7 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.rxjava.ext.web.client.WebClient;
 import java.util.concurrent.CountDownLatch;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,7 +33,6 @@ public class CrimesConsumerContractTest {
             .contains(tuple("Moon", "https://en.wikipedia.org/wiki/Moon"), tuple("Times Square JumboTron", "https://en.wikipedia.org/wiki/One_Times_Square"));
     }
 
-
     @BeforeClass
     public static void deployVerticle() throws InterruptedException {
         final CountDownLatch waitVerticleDeployed = new CountDownLatch(1);
@@ -53,4 +53,21 @@ public class CrimesConsumerContractTest {
         }).start();
         waitVerticleDeployed.await();
     }
+
+    private WebClient createWebClient() {
+        return WebClient.create(new io.vertx.rxjava.core.Vertx(vertx));
+    }
+
+    private static String RESPONSE = "[\n"
+        + "    {\n"
+        + "        \"name\": \"Moon\",\n"
+        + "        \"villain\": \"Gru\",\n"
+        + "        \"wiki\": \"https://en.wikipedia.org/wiki/Moon\"\n"
+        + "    },\n"
+        + "    {\n"
+        + "        \"name\": \"Times Square JumboTron\",\n"
+        + "        \"villain\": \"Gru\",\n"
+        + "        \"wiki\": \"https://en.wikipedia.org/wiki/One_Times_Square\"\n"
+        + "    }\n"
+        + "]";
 }
