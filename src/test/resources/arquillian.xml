@@ -8,8 +8,9 @@
     <property name="publishContracts">${env.publishcontracts:true}</property>
     <property name="publishConfiguration">
       provider: folder
-      outputFolder: /tmp/crimescontract
+      outputFolder: ~/crimescontract
       contractsFolder: build/pacts
+      deleteFolder: "true"
     </property>
   </extension>
 
