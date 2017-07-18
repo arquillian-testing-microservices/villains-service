@@ -32,7 +32,7 @@ repositories {
 project.ext {
     vertxVersion = '3.4.2'
     pactVersion = '3.5.1'
-    algeronVersion = '2.0.0-rc.1'
+    algeronVersion = '2.0.0-rc.2'
 }
 
 dependencyManagement {
