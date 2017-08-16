@@ -20,6 +20,8 @@ import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.client.HttpResponse;
 import io.vertx.rxjava.ext.web.client.WebClient;
 import io.vertx.rxjava.ext.web.handler.BodyHandler;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 import rx.Single;
 
@@ -43,19 +45,11 @@ public class VillainsVerticle extends AbstractVerticle {
     }
 
     private static String resolveCrimesHost() {
-        if (System.getenv().containsKey("CRIMES_HOST")) {
-            return System.getenv("CRIMES_HOST");
-        } else {
-            return System.getProperty("crimes.host", "crimes");
-        }
+        return System.getProperty("crimes.host", "crimes");
     }
 
     private static Integer resolvePort() {
-        if (System.getenv().containsKey("CRIMES_PORT")) {
-            return Integer.parseInt(System.getenv("CRIMES_PORT"));
-        } else {
-            return Integer.parseInt(System.getProperty("crimes.port", "8080"));
-        }
+        return Integer.parseInt(System.getProperty("crimes.port", "8080"));
     }
 
     @Override
