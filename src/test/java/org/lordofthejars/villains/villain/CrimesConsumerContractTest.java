@@ -13,14 +13,23 @@ import rx.Single;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+//1. Arquillian runner
 public class CrimesConsumerContractTest {
 
     private static Vertx vertx;
 
+    //2. URL of stub server
+    //3. Define Request Response using the Pact Dsl Provider
+    //4. Set consumer and provider names
+
     @Test
+    // 5. Define consumer name under test
     public void should_get_list_of_crimes_by_villain() {
 
         // given
+        final WebClient webClient = createWebClient();
+
+        //6. configure gateway with stub location
         CrimesGateway crimesGateway = new CrimesGateway();
 
         // when
