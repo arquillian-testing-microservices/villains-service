@@ -42,7 +42,7 @@ public class VillainsVerticleTest {
     ));**/
 
     @ClassRule
-    public static HoverflyRule hoverflyRule = HoverflyRule.inCaptureOrSimulationMode("hoverfly/simulation.json");
+    public static HoverflyRule hoverflyRule = HoverflyRule.inCaptureOrSimulationMode("simulation.json");
 
     @BeforeClass
     public static void deployVerticle() throws InterruptedException {
