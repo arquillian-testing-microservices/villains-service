@@ -34,12 +34,15 @@ public class VillainsVerticleTest {
         + "]";
 
 
-    @ClassRule
+    /**@ClassRule
     public static HoverflyRule hoverflyRule = HoverflyRule.inSimulationMode(dsl(
-        service("crimes:9090")
+        service("localhost:8080")
             .get("/crimes/Gru")
             .willReturn(success(RESPONSE, "application/json"))
-    ));
+    ));**/
+
+    @ClassRule
+    public static HoverflyRule hoverflyRule = HoverflyRule.inCaptureOrSimulationMode("hoverfly/simulation.json");
 
     @BeforeClass
     public static void deployVerticle() throws InterruptedException {
@@ -49,8 +52,8 @@ public class VillainsVerticleTest {
             vertx = Vertx.vertx();
             DeploymentOptions deploymentOptions = new DeploymentOptions().
                 setConfig(new JsonObject()
-                    .put("services.crimes.host", "crimes")
-                    .put("services.crimes.port", 9090));
+                    .put("services.crimes.host", "localhost")
+                    .put("services.crimes.port", 8080));
 
             vertx.deployVerticle(VillainsVerticle.class.getName(), deploymentOptions, event -> {
                 if (event.failed()) {
@@ -65,6 +68,7 @@ public class VillainsVerticleTest {
     @Test
     public void should_get_villain_information() {
        given()
+            .port(8081)
             .when()
             .get("villains/{villain}", "Gru")
             .then()
