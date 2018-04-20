@@ -94,7 +94,7 @@ public class VillainsVerticle extends AbstractVerticle {
                 router.get("/villains/:villain").handler(this::handleGetVillains);
                 router.get("/health").handler(this::handleHealtchCheck);
                 router.get("/version").handler(this::handleGetVersion);
-                return vertx.createHttpServer().requestHandler(router::accept).rxListen(8080);
+                return vertx.createHttpServer().requestHandler(router::accept).rxListen(8081);
             })
             .toCompletable()
             .subscribe(RxHelper.toSubscriber(fut));
