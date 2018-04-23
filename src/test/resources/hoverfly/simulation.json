@@ -1,6 +1,38 @@
 {
   "data" : {
-    "pairs" : [ ],
+    "pairs" : [ {
+      "request" : {
+        "path" : {
+          "exactMatch" : "/crimes/Gru"
+        },
+        "method" : {
+          "exactMatch" : "GET"
+        },
+        "destination" : {
+          "exactMatch" : "localhost:8080"
+        },
+        "scheme" : {
+          "exactMatch" : "http"
+        },
+        "query" : {
+          "exactMatch" : ""
+        },
+        "body" : {
+          "exactMatch" : ""
+        }
+      },
+      "response" : {
+        "status" : 200,
+        "body" : "[ {\n  \"name\" : \"Moon\",\n  \"villain\" : \"Gru\",\n  \"wiki\" : \"https://en.wikipedia.org/wiki/Moon\"\n}, {\n  \"name\" : \"Times Square JumboTron\",\n  \"villain\" : \"Gru\",\n  \"wiki\" : \"https://en.wikipedia.org/wiki/One_Times_Square\"\n} ]",
+        "encodedBody" : false,
+        "templated" : false,
+        "headers" : {
+          "Content-Length" : [ "218" ],
+          "Content-Type" : [ "application/json" ],
+          "Hoverfly" : [ "Was-Here" ]
+        }
+      }
+    } ],
     "globalActions" : {
       "delays" : [ ]
     }
