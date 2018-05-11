@@ -31,13 +31,13 @@ repositories {
 
 project.ext {
     vertxVersion = '3.4.2'
-    pactVersion = '3.5.1'
-    algeronVersion = '2.0.0-rc.2'
+    pactVersion = '3.5.11'
+    algeronVersion = '2.0.0-rc.3'
 }
 
 dependencyManagement {
     imports {
-        mavenBom 'org.jboss.arquillian:arquillian-bom:1.1.13.Final'
+        mavenBom 'org.jboss.arquillian:arquillian-bom:1.2.0.Final'
     }
 }
 
@@ -153,7 +153,3 @@ task rollbackToDeployment(type: Exec) {
         return standardOutput.toString()
     }
 }
-
-
-
-

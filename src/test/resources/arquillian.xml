@@ -10,7 +10,7 @@
       provider: folder
       outputFolder: ~/crimescontract
       contractsFolder: build/pacts
-      deleteFolder: "true"
+      deleteFolder: true
     </property>
   </extension>
 
